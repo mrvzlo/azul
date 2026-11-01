@@ -12,8 +12,6 @@ import { PlayerType } from "../components/player.type";
 
 const gameContainer = new Container();
 const highlightContainer = new Container();
-const winners = new Map<PlayerType, number>();
-let games = 0;
 
 export function setupClickHandling(app: Application, world: GameWorld) {
   app.stage.addChild(gameContainer);
@@ -42,26 +40,7 @@ export function setupClickHandling(app: Application, world: GameWorld) {
     }
   });
 
-  document.addEventListener("GameEnd", () => {
-    games++;
-    const winner = world.players
-      .map((x, i) => ({ id: i, ...x, totalScore: x.score + x.bonusScore }))
-      .sort((a, b) => b.totalScore - a.totalScore)[0];
-    winners.set(winner.type, (winners.get(winner.type) ?? 0) + 1);
-    const list: string[] = [];
-    winners.forEach((v, k) => {
-      list.push(k + ": " + Math.floor((v / games) * 100) + "%");
-    });
-    console.log(list.join(", "));
-    if (winner.totalScore > 100) {
-      redraw(world);
-      return;
-    }
-    world = SetupGame(AIS);
-    RunRoundShuffle(world);
-    InformMoveSwitch();
-  });
-
+  document.addEventListener("NewGame", () => location.reload());
   window.addEventListener("resize", () => redraw(world));
 }
 
