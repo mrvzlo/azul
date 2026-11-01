@@ -44559,9 +44559,11 @@ ${e2}`);
     app.stage.on("pointerdown", (event) => handleClick(world, event.global));
     Object.assign(window, { baba: () => world });
     document.addEventListener("MoveSwitch", () => {
-      if (IsRoundEnd(world)) {
-        finishRound(world);
-      } else queueMicrotask(() => runAI(world));
+      queueMicrotask(() => {
+        if (GetAnimationCount() > 0) return;
+        if (IsRoundEnd(world)) finishRound(world);
+        else runAI(world);
+      });
     });
     window.addEventListener("keydown", (e2) => {
       if (e2.code === "KeyZ" && GetAnimationCount() === 0) {
@@ -44802,19 +44804,37 @@ ${e2}`);
   }
 
   // src/main.ts
-  var AIS = ["human", "Approx", "Approx", "Approx"];
   var MIN_WIDTH = 555;
   async function runApp() {
+    const playerCount = await askPlayerCount();
     const app = new Application();
     await app.init({ backgroundAlpha: 0, resizeTo: window, antialias: true });
     if (window.innerWidth < MIN_WIDTH) resize(app);
     document.body.appendChild(app.canvas);
     await prepareTextures();
-    const world = SetupGame(app, AIS);
+    const players = ["human", ...Array.from({ length: playerCount }, () => "Approx")];
+    const world = SetupGame(app, players);
     RunRoundShuffle(world);
     setupClickHandling(app, world);
     InformMoveSwitch();
     if (app.canvas.width < 500) alert(app.canvas.width);
+  }
+  function askPlayerCount() {
+    const dialog = document.querySelector("#start-dialog");
+    const form = document.querySelector("#start-game-form");
+    dialog.showModal();
+    return new Promise((resolve) => {
+      form.addEventListener(
+        "submit",
+        (event) => {
+          event.preventDefault();
+          const count2 = Number(event.submitter.value);
+          dialog.close();
+          resolve(count2);
+        },
+        { once: true }
+      );
+    });
   }
   function resize(app) {
     const screenWidth = window.innerWidth;
