@@ -61,6 +61,8 @@ export function setupClickHandling(app: Application, world: GameWorld) {
     RunRoundShuffle(world);
     InformMoveSwitch();
   });
+
+  window.addEventListener("resize", () => redraw(world));
 }
 
 function handleClick(world: GameWorld, newPos: Point) {
