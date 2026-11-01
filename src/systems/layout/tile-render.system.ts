@@ -13,7 +13,7 @@ export function RenderHitboxTile(container: Container, hitbox: Hitbox, color: nu
   const size = TILE_SIZE * getPlayerBoardScale(hitbox.playerIndex ?? 0);
   if (hitbox.graphicColor !== color || hitbox.graphicSelected !== selected) {
     graphic.clear().rect(0, 0, size, size).fill(tileTextures[color]);
-    if (selected) graphic.stroke(0xffffff);
+    if (selected) graphic.stroke({ color: 0xffffff, width: 2 });
     hitbox.graphicColor = color;
     hitbox.graphicSelected = selected;
   }

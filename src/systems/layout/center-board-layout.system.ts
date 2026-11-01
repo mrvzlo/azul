@@ -8,8 +8,9 @@ export function SetCenterTileHitboxes(world: GameWorld) {
   for (let i = 0; i < outerCapacity; i++) {
     const color = world.center.outer[i] ?? 0;
     const key = `outer:${i}`;
-    const x = world.windowSize.width / 2 + (i - world.center.outer.length / 2) * (TILE_SIZE + OUTER_GAP) + OUTER_GAP / 2;
-    setTileHitbox(world, key, color, x, OUTER_GAP, "outer", -1);
+    const x = world.windowSize.width / 2 + (i - world.center.outer.length / 2) * (TILE_SIZE / 2 + OUTER_GAP / 2) - OUTER_GAP / 4;
+    const y = OUTER_GAP + TILE_SIZE * 2 + (i % 2) * (TILE_SIZE + OUTER_GAP / 2);
+    setTileHitbox(world, key, color, x, y, "outer", -1);
   }
 
   world.center.factories.forEach((factory, factoryIndex) => {
@@ -47,9 +48,10 @@ function getTileY(index: number) {
 }
 
 export function getFactoryPos(world: GameWorld, i: number) {
-  const shiftX = i + 0.5 - world.center.factories.length / 2;
+  const half = world.center.factories.length / 2;
+  const shiftX = i + 0.5 - half;
 
-  const y = TILE_SIZE + OUTER_GAP * 2 + CIRCLE_R;
-  const x = world.windowSize.width / 2 + shiftX * (CIRCLE_R * 2 + OUTER_GAP);
+  const y = TILE_SIZE * 3 + OUTER_GAP * 5 + CIRCLE_R + (i % 2) * CIRCLE_R * 2;
+  const x = world.windowSize.width / 2 + shiftX * (CIRCLE_R + INNER_GAP);
   return { x, y };
 }

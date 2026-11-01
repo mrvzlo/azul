@@ -1,6 +1,6 @@
 import GameWorld from "../../components/game-world";
 import { updateHitbox } from "../../components/hitbox";
-import { CIRCLE_R, INNER_GAP, OUTER_GAP, PLAYER_BOARD_TOP, TILE_SIZE, WHOLE_BOARD_W } from "../../consts/sizes";
+import { CIRCLE_R, INNER_GAP, PLAYER_BOARD_TOP, TILE_SIZE, WHOLE_BOARD_W } from "../../consts/sizes";
 
 const lines = 5;
 const HITBOX_GAP = INNER_GAP * 0.8;
@@ -52,10 +52,11 @@ export function SetPlayerLineHitboxes(world: GameWorld) {
 
 export function getPlayerBoardY(world: GameWorld, index: number) {
   if (index == 0) return PLAYER_BOARD_TOP;
-  return world.windowSize.height - TILE_SIZE * 3 - INNER_GAP * 3 - CIRCLE_R;
+  return PLAYER_BOARD_TOP + (TILE_SIZE * 6 + INNER_GAP * 6 + CIRCLE_R);
 }
 
 export function getPlayerBoardX(world: GameWorld, index: number) {
   if (index == 0) return world.windowSize.width / 2 - WHOLE_BOARD_W / 2;
-  return world.windowSize.width / 2 + (TILE_SIZE * 5 + INNER_GAP * 7) * (index - world.players.length / 2 - 0.5) + INNER_GAP;
+  const gap = 20;
+  return world.windowSize.width / 2 + (WHOLE_BOARD_W / 2 + gap) * (index - world.players.length / 2 - 0.5) + gap / 2;
 }

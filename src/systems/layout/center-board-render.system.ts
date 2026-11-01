@@ -1,7 +1,7 @@
 import { Container, Graphics } from "pixi.js";
 import { getFactoryPos } from "./center-board-layout.system";
 import GameWorld from "../../components/game-world";
-import { CIRCLE_R, OUTER_GAP } from "../../consts/sizes";
+import { CIRCLE_R, OUTER_GAP, TILE_SIZE } from "../../consts/sizes";
 import { HideHitboxTile, RenderFirstToken, RenderHitboxTile } from "./tile-render.system";
 import { MAIN_BG, MAIN_BORDER } from "../../consts/colors";
 
@@ -24,7 +24,7 @@ export const RenderCenterBoard = (container: Container, world: GameWorld) => {
     RenderHitboxTile(container, t, t.color, !!isSelected);
   });
   if (!world.center.firstTaken) {
-    RenderFirstToken(lineG, OUTER_GAP, OUTER_GAP);
+    RenderFirstToken(lineG, world.windowSize.width / 2 - TILE_SIZE / 2, TILE_SIZE);
   }
 };
 
