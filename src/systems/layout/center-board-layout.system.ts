@@ -1,31 +1,39 @@
 import { TILE_SIZE, OUTER_GAP, CIRCLE_R, INNER_GAP } from "../../consts/sizes";
 import GameWorld from "../../components/game-world";
+import { updateHitbox } from "../../components/hitbox";
 import { PickupSource } from "../../components/hitbox";
 
 export function SetCenterTileHitboxes(world: GameWorld) {
-  addOuterTilesHitboxes(world);
-  addFactoryTilesHitboxes(world);
-}
+  const outerCapacity = world.center.factories.length * 4;
+  for (let i = 0; i < outerCapacity; i++) {
+    const color = world.center.outer[i] ?? 0;
+    const key = `outer:${i}`;
+    const x = world.windowSize.width / 2 + (i - world.center.outer.length / 2) * (TILE_SIZE + OUTER_GAP) + OUTER_GAP / 2;
+    setTileHitbox(world, key, color, x, OUTER_GAP, "outer", -1);
+  }
 
-function addOuterTilesHitboxes(world: GameWorld) {
-  let x = OUTER_GAP * 2 + TILE_SIZE;
-  let y = OUTER_GAP;
-
-  world.center.outer.forEach((color) => {
-    addTileHitbox(world, color, x, y, "outer", -1);
-    x += TILE_SIZE + OUTER_GAP;
-  });
-}
-
-function addFactoryTilesHitboxes(world: GameWorld) {
   world.center.factories.forEach((factory, factoryIndex) => {
-    let { x, y } = getFactoryPos(factoryIndex);
-    factory.forEach((color, tileIndex) => addTileHitbox(world, color, x + getTileX(tileIndex), y + getTileY(tileIndex), "factory", factoryIndex));
+    const { x, y } = getFactoryPos(world, factoryIndex);
+    for (let tileIndex = 0; tileIndex < 4; tileIndex++) {
+      const color = factory[tileIndex] ?? 0;
+      const key = `factory:${factoryIndex}:${tileIndex}`;
+      setTileHitbox(world, key, color, x + getTileX(tileIndex), y + getTileY(tileIndex), "factory", factoryIndex);
+    }
   });
 }
 
-function addTileHitbox(world: GameWorld, color: number, x: number, y: number, source: PickupSource, sourceId: number) {
-  world.hitboxes.push({ x, y, w: TILE_SIZE, h: TILE_SIZE, color, source, sourceId, interactive: true });
+function setTileHitbox(world: GameWorld, key: string, color: number, x: number, y: number, source: PickupSource, sourceId: number) {
+  updateHitbox(world.hitboxes, key, {
+    x,
+    y,
+    w: TILE_SIZE,
+    h: TILE_SIZE,
+    color,
+    source,
+    sourceId,
+    interactive: color > 0,
+    occupied: color > 0,
+  });
 }
 
 function getTileX(index: number) {
@@ -38,8 +46,10 @@ function getTileY(index: number) {
   return INNER_GAP / 2;
 }
 
-export function getFactoryPos(i: number) {
+export function getFactoryPos(world: GameWorld, i: number) {
+  const shiftX = i + 0.5 - world.center.factories.length / 2;
+
   const y = TILE_SIZE + OUTER_GAP * 2 + CIRCLE_R;
-  const x = OUTER_GAP + i * (CIRCLE_R * 2 + OUTER_GAP) + CIRCLE_R;
+  const x = world.windowSize.width / 2 + shiftX * (CIRCLE_R * 2 + OUTER_GAP);
   return { x, y };
 }

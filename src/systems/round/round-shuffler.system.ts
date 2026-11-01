@@ -7,6 +7,7 @@ export function RunRoundShuffle(gameWorld: GameWorld) {
   const center = gameWorld.center;
   center.outer = [];
   center.factories = Array.from({ length: center.factories.length }, () => Array.from({ length: 4 }, () => getNextTile(center)));
+  gameWorld.hitboxes.clear();
 }
 
 function getNextTile(center: CenterBoard) {

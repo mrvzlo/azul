@@ -13,7 +13,7 @@ export async function runApp() {
   await app.init({ backgroundAlpha: 0, resizeTo: window, antialias: true });
   document.body.appendChild(app.canvas);
   await prepareTextures();
-  const world = SetupGame(AIS);
+  const world = SetupGame(app, AIS);
   RunRoundShuffle(world);
   setupClickHandling(app, world);
   InformMoveSwitch();

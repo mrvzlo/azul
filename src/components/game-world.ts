@@ -1,3 +1,4 @@
+import { Size } from "pixi.js";
 import { CenterBoard } from "./center-board";
 import Hitbox from "./hitbox";
 import Pickup from "./pickup";
@@ -8,7 +9,8 @@ export default interface GameWorld {
   currentPlayer: number;
   center: CenterBoard;
   players: PlayerBoard[];
-  hitboxes: Hitbox[];
+  hitboxes: Map<string, Hitbox>;
   lastPickup?: Pickup;
   history: Pickup[];
+  windowSize: Size;
 }

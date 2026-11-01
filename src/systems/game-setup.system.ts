@@ -1,3 +1,4 @@
+import { Application } from "pixi.js";
 import { CenterBoard } from "../components/center-board";
 import GameWorld from "../components/game-world";
 import PlayerBoard from "../components/player-board";
@@ -6,14 +7,15 @@ import { Approximator } from "./ai/apporiximator";
 import { DeepLooker } from "./ai/deep-looker";
 import { shuffle } from "./shuffle.system";
 
-export function SetupGame(players: PlayerType[]) {
+export function SetupGame(app: Application, players: PlayerType[]) {
   const world: GameWorld = {
     center: setupGameBoard(players.length),
     currentPlayer: -1,
     players: players.map((x) => setupPlayerBoard(x)),
     round: 0,
-    hitboxes: [],
+    hitboxes: new Map(),
     history: [],
+    windowSize: app.canvas,
   };
   assignAI(world);
   return world;

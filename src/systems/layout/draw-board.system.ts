@@ -6,7 +6,6 @@ import { SetPlayerLineHitboxes } from "./player-board-layout.system";
 import { RenderPlayerBoard } from "./player-board-render.system";
 
 export function DrawBoard(container: Container, world: GameWorld) {
-  world.hitboxes = [];
   SetCenterTileHitboxes(world);
   SetPlayerLineHitboxes(world);
   RenderCenterBoard(container, world);

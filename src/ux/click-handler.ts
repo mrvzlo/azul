@@ -5,10 +5,7 @@ import { CreatePickupFromHitbox } from "../systems/moves/tile-pick.system";
 import { applyPickup, undoPickup, validatePickup } from "../systems/moves/pickup.system";
 import { IsRoundEnd, RunRoundEnd } from "../systems/round/round-end.system";
 import { InformMoveSwitch } from "../systems/moves/player-shift.system";
-import { SetupGame } from "../systems/game-setup.system";
-import { RunRoundShuffle } from "../systems/round/round-shuffler.system";
-import { AIS } from "../main";
-import { PlayerType } from "../components/player.type";
+import { AnimatePickupTiles, AnimateRoundEndTiles, GetAnimationCount } from "../systems/layout/tile-animation.system";
 
 const gameContainer = new Container();
 const highlightContainer = new Container();
@@ -23,12 +20,13 @@ export function setupClickHandling(app: Application, world: GameWorld) {
   Object.assign(window, { baba: () => world });
 
   document.addEventListener("MoveSwitch", () => {
-    if (IsRoundEnd(world)) RunRoundEnd(world);
-    else setTimeout(() => runAI(world), 1);
+    if (IsRoundEnd(world)) {
+      finishRound(world);
+    } else queueMicrotask(() => runAI(world));
   });
 
   window.addEventListener("keydown", (e) => {
-    if (e.key === "z") {
+    if (e.code === "KeyZ" && GetAnimationCount() === 0) {
       if (world.players[world.currentPlayer].type !== "human") return;
       if (world.history.some((x) => x.player === world.currentPlayer))
         for (let i = 0; i < world.players.length; i++) {
@@ -41,12 +39,18 @@ export function setupClickHandling(app: Application, world: GameWorld) {
   });
 
   document.addEventListener("NewGame", () => location.reload());
-  window.addEventListener("resize", () => redraw(world));
+  window.addEventListener("resize", () => {
+    if (GetAnimationCount() === 0) redraw(world);
+  });
+  window.addEventListener("GameEnd", () => redraw(world));
 }
 
-function handleClick(world: GameWorld, newPos: Point) {
+async function handleClick(world: GameWorld, newPos: Point) {
+  if (GetAnimationCount() > 0) return;
   if (world.players[world.currentPlayer].type !== "human") return;
-  const hit = world.hitboxes.find((box) => box.x <= newPos.x && box.y <= newPos.y && box.x + box.w > newPos.x && box.y + box.h > newPos.y);
+  const hit = Array.from(world.hitboxes.values()).find(
+    (box) => box.x <= newPos.x && box.y <= newPos.y && box.x + box.w > newPos.x && box.y + box.h > newPos.y,
+  );
   if (hit && !hit.interactive) return;
   if (!hit) delete world.lastPickup;
   else if (hit.source !== "line") {
@@ -54,6 +58,7 @@ function handleClick(world: GameWorld, newPos: Point) {
   } else if (world.lastPickup && hit.source === "line") {
     world.lastPickup.toLine = hit.sourceId;
     if (validatePickup(world, world.lastPickup)) {
+      await AnimatePickupTiles(world, world.lastPickup);
       applyPickup(world, world.lastPickup, false);
       delete world.lastPickup;
     } else delete world.lastPickup.toLine;
@@ -61,10 +66,22 @@ function handleClick(world: GameWorld, newPos: Point) {
   redraw(world);
 }
 
-function runAI(world: GameWorld) {
+async function runAI(world: GameWorld) {
   const ai = world.players[world.currentPlayer].ai;
-  if (ai) applyPickup(world, ai.makeMove(), false);
-  else redraw(world);
+  if (ai) {
+    const pickup = ai.makeMove();
+
+    await AnimatePickupTiles(world, pickup);
+    applyPickup(world, pickup, false);
+
+    redraw(world);
+  } else redraw(world);
+}
+
+async function finishRound(world: GameWorld) {
+  await AnimateRoundEndTiles(world);
+  RunRoundEnd(world);
+  redraw(world);
 }
 
 function redraw(world: GameWorld) {

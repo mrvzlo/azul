@@ -1,81 +1,85 @@
 import { Container, Graphics, Text, TextStyleOptions } from "pixi.js";
 import GameWorld from "../../components/game-world";
-import { OUTER_GAP, TILE_SIZE, INNER_GAP, HITBOX_GAP } from "../../consts/sizes";
+import { OUTER_GAP, TILE_SIZE, INNER_GAP, PLAYER_BOARD_LEFT, PLAYER_BOARD_SIZE } from "../../consts/sizes";
 import { getPlayerBoardX, getPlayerBoardY } from "./player-board-layout.system";
 import PlayerBoard from "../../components/player-board";
-import { RenderFirstToken } from "./tile-render.system";
+import { HideHitboxTile, RenderFirstToken, RenderHitboxTile } from "./tile-render.system";
 import { tileTextures } from "./textures";
 import { MAIN_BG, MAIN_BORDER } from "../../consts/colors";
 
-const PLAYER_BOARD_LEFT = OUTER_GAP + TILE_SIZE * 5 + INNER_GAP * 4;
-const PLAYER_BOARD_SIZE = TILE_SIZE * 5 + INNER_GAP * 4 + INNER_GAP * 2;
-
 export function RenderPlayerBoard(container: Container, world: GameWorld) {
-  const g = new Graphics();
-  container.addChild(g);
-
   world.players.forEach((p, pi) => {
-    const isMain = pi === world.currentPlayer;
-    const px = getPlayerBoardX(pi);
+    const px = getPlayerBoardX(world, pi);
     const py = getPlayerBoardY(pi);
 
-    g.rect(px + PLAYER_BOARD_LEFT - INNER_GAP, py - INNER_GAP, PLAYER_BOARD_SIZE, PLAYER_BOARD_SIZE)
+    const board = new Graphics();
+    board
+      .rect(px + PLAYER_BOARD_LEFT - INNER_GAP, py - INNER_GAP, PLAYER_BOARD_SIZE, PLAYER_BOARD_SIZE)
       .fill(MAIN_BG)
       .stroke(MAIN_BORDER);
+    container.addChild(board);
 
     p.placed.forEach((placed, i) => {
       const x = i % 5;
       const y = Math.floor(i / 5);
-      let color = tileTextures[p.arrangement[i]];
-      const rect = g
-        .rect(px + PLAYER_BOARD_LEFT + (TILE_SIZE + INNER_GAP) * x, py + (TILE_SIZE + INNER_GAP) * y, TILE_SIZE, TILE_SIZE)
-        .fill(color);
-      if (placed) rect.stroke(0);
+      const g = drawTile(px + PLAYER_BOARD_LEFT + (TILE_SIZE + INNER_GAP) * x, py + (TILE_SIZE + INNER_GAP) * y, p.arrangement[i]);
+      if (!placed) g.alpha = 0.4;
+      container.addChild(g);
     });
 
-    p.lineFilled.forEach((line, i) => {
-      if (line === 0) return;
-      const color = p.lineColors[i];
-      const top = py + i * (TILE_SIZE + INNER_GAP);
-      let left = px + (TILE_SIZE + INNER_GAP) * 4;
-      for (let i = 0; i < line; i++) {
-        g.rect(left, top, TILE_SIZE, TILE_SIZE).fill(tileTextures[color]);
-        left -= TILE_SIZE + INNER_GAP;
-      }
+    world.hitboxes.forEach((hitbox) => {
+      if (hitbox.source !== "line" || hitbox.playerIndex !== pi || hitbox.sourceId === undefined || hitbox.sourceId < 0) return;
+      if (hitbox.occupied) RenderHitboxTile(container, hitbox, p.lineColors[hitbox.sourceId]);
+      else HideHitboxTile(hitbox);
     });
 
-    if (isMain) {
-      g.ellipse(px, py, 10, 10).fill("#5a58").stroke(0);
-    }
+    /*if (pi === world.currentPlayer) {
+      const marker = new Graphics();
+      marker.ellipse(px, py, 10, 10).fill("#5a58").stroke(0);
+      container.addChild(marker);
+    }*/
 
-    drawPenalties(p, px, py, g);
-    drawScore(g, p, px, py, container);
+    drawPenalties(p, px, py, container);
+    drawScore(p, px, py, container);
   });
 }
 
-function drawPenalties(player: PlayerBoard, px: number, py: number, g: Graphics) {
+function drawTile(x: number, y: number, color: number, outlined = false) {
+  const tile = new Graphics();
+  const rect = tile.rect(x, y, TILE_SIZE, TILE_SIZE).fill(tileTextures[color]);
+  if (outlined) rect.stroke(0);
+  return tile;
+}
+
+function drawPenalties(player: PlayerBoard, px: number, py: number, container: Container) {
   let ind = 0;
   let left = px;
   const top = py + 5 * (TILE_SIZE + INNER_GAP) + INNER_GAP;
   if (player.hasFirst) {
-    RenderFirstToken(g, left, top);
+    const firstToken = new Graphics();
+    RenderFirstToken(firstToken, left, top);
+    container.addChild(firstToken);
     ind++;
   }
   for (let i = 0; i < 7 - +player.hasFirst && i < player.penalties.length; i++) {
-    g.rect(left + ind * (TILE_SIZE + INNER_GAP), top, TILE_SIZE, TILE_SIZE).fill(tileTextures[player.penalties[i]]);
+    const g = drawTile(left + ind * (TILE_SIZE + INNER_GAP), top, player.penalties[i]);
+    container.addChild(g);
     ind++;
   }
 }
 
-const scoreLeft = (TILE_SIZE + INNER_GAP) * 7 + INNER_GAP + TILE_SIZE / 2;
-const scoreTop = 5 * (TILE_SIZE + INNER_GAP) + INNER_GAP - HITBOX_GAP / 2;
-const scoreW = TILE_SIZE * 2 + INNER_GAP * 2;
-const scoreH = TILE_SIZE + HITBOX_GAP;
+const scoreLeft = (TILE_SIZE + INNER_GAP) * 7 + INNER_GAP;
+const scoreTop = 5 * (TILE_SIZE + INNER_GAP) + INNER_GAP;
+const scoreW = TILE_SIZE * 3 + INNER_GAP * 2;
+const scoreH = TILE_SIZE;
 
-function drawScore(g: Graphics, p: PlayerBoard, px: number, py: number, container: Container) {
-  g.rect(px + scoreLeft, py + scoreTop, scoreW, scoreH)
+function drawScore(p: PlayerBoard, px: number, py: number, container: Container) {
+  const scoreBackground = new Graphics();
+  scoreBackground
+    .rect(px + scoreLeft, py + scoreTop, scoreW, scoreH)
     .fill(MAIN_BG)
     .stroke(MAIN_BORDER);
+  container.addChild(scoreBackground);
 
   const style: TextStyleOptions = { fontSize: 16, fill: 0x222222, fontFamily: "Courier New", fontWeight: "bold" };
   const text = p.score + (p.bonusScore > 0 ? " + " + p.bonusScore : "");
