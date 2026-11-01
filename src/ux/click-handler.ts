@@ -6,6 +6,7 @@ import { applyPickup, undoPickup, validatePickup } from "../systems/moves/pickup
 import { IsRoundEnd, RunRoundEnd } from "../systems/round/round-end.system";
 import { InformMoveSwitch } from "../systems/moves/player-shift.system";
 import { AnimatePickupTiles, AnimateRoundEndTiles, GetAnimationCount } from "../systems/layout/tile-animation.system";
+import { showGameOver } from "../systems/game-end.system";
 
 const gameContainer = new Container();
 const highlightContainer = new Container();
@@ -38,14 +39,17 @@ export function setupClickHandling(app: Application, world: GameWorld) {
     }
   });
 
-  document.addEventListener("NewGame", () => location.reload());
   window.addEventListener("resize", () => {
     if (GetAnimationCount() === 0) redraw(world);
   });
-  window.addEventListener("GameEnd", () => redraw(world));
+  document.addEventListener("GameEnd", () => {
+    redraw(world);
+    showGameOver(world, highlightContainer);
+  });
 }
 
 async function handleClick(world: GameWorld, newPos: Point) {
+  if (world.gameOver) location.reload();
   if (GetAnimationCount() > 0) return;
   if (world.players[world.currentPlayer].type !== "human") return;
   const hit = Array.from(world.hitboxes.values()).find(

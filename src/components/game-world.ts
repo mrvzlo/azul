@@ -13,4 +13,5 @@ export default interface GameWorld {
   lastPickup?: Pickup;
   history: Pickup[];
   windowSize: Size;
+  gameOver?: boolean;
 }
