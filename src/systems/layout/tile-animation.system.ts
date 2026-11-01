@@ -86,18 +86,20 @@ export async function AnimateRoundEndTiles(world: GameWorld): Promise<void> {
 
       const boardX = getPlayerBoardX(world, pi);
       const scale = getPlayerBoardScale(pi);
-      const sourceColumn = 5 - filled;
-      const source = world.hitboxes.get(`line:${pi}:${line}:${sourceColumn}`);
-      if (!source) return;
-      const sourceX = source.x;
 
-      movements.push({
-        hitbox: source,
-        graphic: source.graphic,
-        toX: boardX + (PLAYER_BOARD_LEFT + column * (TILE_SIZE + INNER_GAP)) * scale - sourceX,
-        toY: 0,
-        toScale: scale,
-      });
+      for (let col = 4 - line; col < 5; col++) {
+        const source = world.hitboxes.get(`line:${pi}:${line}:${col}`);
+        if (!source) continue;
+        const sourceX = source.x;
+
+        movements.push({
+          hitbox: source,
+          graphic: source.graphic,
+          toX: boardX + (PLAYER_BOARD_LEFT + column * (TILE_SIZE + INNER_GAP)) * scale - sourceX - 2,
+          toY: 0,
+          toScale: scale,
+        });
+      }
     });
   });
 

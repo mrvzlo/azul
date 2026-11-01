@@ -69,7 +69,6 @@ function getTileScore(player: PlayerBoard, tile: number, y: number) {
   while (x - left - 1 >= 0 && player.placed[x - left - 1 + y * 5]) left++;
   while (x + right + 1 < 5 && player.placed[x + right + 1 + y * 5]) right++;
   const total = 1 + top + bottom + left + right + +(top + bottom > 0 && left + right > 0);
-  if (player.type === "human") console.log("Placed at", x, y, " earned " + total);
   return total;
 }
 

@@ -1,6 +1,6 @@
-import { ColorMatrixFilter, Container, Graphics, Text, TextStyleOptions } from "pixi.js";
+import { Container, Graphics, Text, TextStyleOptions } from "pixi.js";
 import GameWorld from "../../components/game-world";
-import { OUTER_GAP, TILE_SIZE, INNER_GAP, PLAYER_BOARD_LEFT, PLAYER_BOARD_SIZE } from "../../consts/sizes";
+import { TILE_SIZE, INNER_GAP, PLAYER_BOARD_LEFT, PLAYER_BOARD_SIZE } from "../../consts/sizes";
 import { getPlayerBoardScale, getPlayerBoardX, getPlayerBoardY } from "./player-board-layout.system";
 import PlayerBoard from "../../components/player-board";
 import { HideHitboxTile, RenderFirstToken, RenderHitboxTile } from "./tile-render.system";

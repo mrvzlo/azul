@@ -6,7 +6,7 @@ const lines = 5;
 const HITBOX_GAP = INNER_GAP * 0.8;
 
 export function getPlayerBoardScale(index: number) {
-  return index === 0 ? 1 : 0.5;
+  return index === 0 ? 1 : 0.4;
 }
 
 export function SetPlayerLineHitboxes(world: GameWorld) {
@@ -37,7 +37,7 @@ export function SetPlayerLineHitboxes(world: GameWorld) {
       updateHitbox(world.hitboxes, key, {
         color: 0,
         x: px + (i * (TILE_SIZE + INNER_GAP) - HITBOX_GAP / 2) * scale,
-        y: py + (5 * (TILE_SIZE + INNER_GAP) + INNER_GAP - HITBOX_GAP / 2) * scale,
+        y: py + (5 * (TILE_SIZE + INNER_GAP) + INNER_GAP) * scale,
         w: (TILE_SIZE + HITBOX_GAP) * scale,
         h: (TILE_SIZE + HITBOX_GAP) * scale,
         source: "line",
@@ -58,5 +58,7 @@ export function getPlayerBoardY(world: GameWorld, index: number) {
 export function getPlayerBoardX(world: GameWorld, index: number) {
   if (index == 0) return world.windowSize.width / 2 - WHOLE_BOARD_W / 2;
   const gap = 20;
-  return world.windowSize.width / 2 + (WHOLE_BOARD_W / 2 + gap) * (index - world.players.length / 2 - 0.5) + gap / 2;
+  return (
+    world.windowSize.width / 2 + (WHOLE_BOARD_W * getPlayerBoardScale(index) + gap) * (index - world.players.length / 2 - 0.5) + gap / 2
+  );
 }

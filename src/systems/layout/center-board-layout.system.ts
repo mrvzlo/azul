@@ -8,8 +8,9 @@ export function SetCenterTileHitboxes(world: GameWorld) {
   for (let i = 0; i < outerCapacity; i++) {
     const color = world.center.outer[i] ?? 0;
     const key = `outer:${i}`;
-    const x = world.windowSize.width / 2 + (i - world.center.outer.length / 2) * (TILE_SIZE / 2 + OUTER_GAP / 2) - OUTER_GAP / 4;
-    const y = OUTER_GAP + TILE_SIZE * 2 + (i % 2) * (TILE_SIZE + OUTER_GAP / 2);
+    const shift = i - world.center.outer.length / 2 + 0.5;
+    const x = world.windowSize.width / 2 - TILE_SIZE / 2 + shift * (TILE_SIZE / 2 + 2);
+    const y = OUTER_GAP + TILE_SIZE * 2 + (i % 2) * (TILE_SIZE + 2);
     setTileHitbox(world, key, color, x, y, "outer", -1);
   }
 

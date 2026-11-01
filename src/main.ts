@@ -7,7 +7,7 @@ import { PlayerType } from "./components/player.type";
 import { prepareTextures } from "./systems/layout/textures";
 
 export const AIS: PlayerType[] = ["human", "Approx", "Approx", "Approx"];
-const MIN_WIDTH = 687;
+const MIN_WIDTH = 555;
 
 export async function runApp() {
   const app = new Application();
