@@ -21,9 +21,11 @@ export function setupClickHandling(app: Application, world: GameWorld) {
   Object.assign(window, { baba: () => world });
 
   document.addEventListener("MoveSwitch", () => {
-    if (IsRoundEnd(world)) {
-      finishRound(world);
-    } else queueMicrotask(() => runAI(world));
+    queueMicrotask(() => {
+      if (GetAnimationCount() > 0) return;
+      if (IsRoundEnd(world)) finishRound(world);
+      else runAI(world);
+    });
   });
 
   window.addEventListener("keydown", (e) => {

@@ -3,7 +3,7 @@
   "scripts": {
     "build": "node build.js",
     "serve": "npx serve dist",
-    "deploy": "gh-pages -d src",
+    "deploy": "gh-pages -d dist",
     "watch-build": "nodemon --watch src --ext ts,html --exec \"npm run build\""
   },
   "devDependencies": {

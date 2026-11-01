@@ -12,4 +12,6 @@ await build({
 });
 
 copyFileSync("src/index.html", "dist/index.html");
+copyFileSync("src/policy.html", "dist/policy.html");
+copyFileSync("src/favicon.ico", "dist/favicon.ico");
 cpSync("src/assets", "dist/assets", { recursive: true });

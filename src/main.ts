@@ -6,20 +6,40 @@ import { InformMoveSwitch } from "./systems/moves/player-shift.system";
 import { PlayerType } from "./components/player.type";
 import { prepareTextures } from "./systems/layout/textures";
 
-export const AIS: PlayerType[] = ["human", "Approx", "Approx", "Approx"];
 const MIN_WIDTH = 555;
 
 export async function runApp() {
+  const playerCount = await askPlayerCount();
   const app = new Application();
   await app.init({ backgroundAlpha: 0, resizeTo: window, antialias: true });
   if (window.innerWidth < MIN_WIDTH) resize(app);
   document.body.appendChild(app.canvas);
   await prepareTextures();
-  const world = SetupGame(app, AIS);
+  const players: PlayerType[] = ["human", ...Array.from({ length: playerCount }, () => "Approx" as const)];
+  const world = SetupGame(app, players);
   RunRoundShuffle(world);
   setupClickHandling(app, world);
   InformMoveSwitch();
   if (app.canvas.width < 500) alert(app.canvas.width);
+}
+
+function askPlayerCount(): Promise<number> {
+  const dialog = document.querySelector<HTMLDialogElement>("#start-dialog")!;
+  const form = document.querySelector<HTMLFormElement>("#start-game-form")!;
+
+  dialog.showModal();
+  return new Promise((resolve) => {
+    form.addEventListener(
+      "submit",
+      (event) => {
+        event.preventDefault();
+        const count = Number((event.submitter! as any).value);
+        dialog.close();
+        resolve(count);
+      },
+      { once: true },
+    );
+  });
 }
 
 function resize(app: Application) {

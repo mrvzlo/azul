@@ -7,14 +7,100 @@
     <style>
       body {
         margin: 0;
-        background-color: #eee;
         overflow: hidden;
         background-image: url("./assets/bg.png");
         background-repeat: repeat;
       }
+      #start-dialog {
+        width: min(440px, calc(100vw - 64px));
+        padding: 16px;
+        color: #543;
+        background: #f7edda;
+        border: 3px solid #543;
+        border-radius: 16px;
+      }
+      
+      #start-dialog h1 {
+        margin: 0 0 8px;
+        font-size: 28px;
+      }
+      #start-dialog p {
+        margin: 0 0 10px;
+      }
+      #start-dialog label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+      }
+      .options {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+      #game-rules {
+        margin-bottom: 22px;
+        padding: 12px;
+        border-radius: 6px;
+        background: #ead9bd;
+      }
+      #game-rules summary {
+        font-weight: bold;
+      }
+      #game-rules ol {
+        margin-bottom: 0;
+        padding-left: 22px;
+      }
+      #game-rules li + li {
+        margin-top: 8px;
+      }
+      #start-game-form button {
+        padding: 12px;
+        border: 0;
+        border-radius: 6px;
+        color: white;
+        background: #543;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 16px;
+        font-weight: bold;
+        flex-grow: 1;
+      }
+      #start-game-form button:hover {
+        background: #4f3523;
+      }
+      a {
+        margin-top: 16px;
+        color: #543;
+        float: right;
+      }
     </style>
   </head>
   <body>
+    <dialog id="start-dialog" aria-labelledby="start-title">
+      <h1 id="start-title">Mosaic Ladder</h1>
+      <p>Choose how many opponents to play with.</p>
+      <form id="start-game-form">
+        <div class="options">
+          <button type="submit" value="3">3</button>
+          <button type="submit" value="2">2</button>
+          <button type="submit" value="1">1</button>
+        </div>
+        <div id="game-rules">
+          <summary>New to the game?</summary>
+          <ol>
+            <li>On your turn, take all tiles of one color from a factory, or take that color from the center</li>
+            <li>Place the tiles in a pattern line, any extras go to the penalty row</li>
+            <li>
+              When the factories and center are empty, filled lines move one tile to the matching wall space and gain score for adjacent
+              tiles count
+            </li>
+            <li>The game ends when a player completes a row</li>
+            <li>Full row, full column and full color give bonus score</li>
+          </ol>
+        </details>
+        <a href="./policy">Privacy policy</a>
+      </form>
+    </dialog>
     <script type="module" src="./main.js"></script>
   </body>
 </html>
